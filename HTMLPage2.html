@@ -1,0 +1,716 @@
+﻿<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ספירת החופש והסבל</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ספירת הסבל">
+    <link rel="apple-touch-icon" href="beitar.png">
+    <link rel="manifest" id="pwaManifest">
+
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --container-bg: rgba(15, 23, 42, 0.85);
+            --neon-blue: #00f2fe;
+            --neon-pulse: rgba(0, 242, 254, 0.4);
+            --text-main: #f3f4f6;
+            --team1-color: #0f172a;
+            --team2-color: #1e1b4b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #2e1065 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            overflow-x: hidden;
+            transition: background 0.5s ease;
+            position: relative;
+        }
+
+            body.split-active {
+                background: linear-gradient(to left, var(--team1-color) 0%, var(--team1-color) 45%, #111 50%, var(--team2-color) 55%, var(--team2-color) 100%) !important;
+            }
+
+        .bg-team-logo {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%) scale(0.9);
+            width: 240px;
+            height: 240px;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        body.split-active .bg-team-logo {
+            opacity: 0.55;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .bg-logo-right {
+            right: 8%;
+        }
+
+        .bg-logo-left {
+            left: 8%;
+        }
+
+        .bg-vs-giant {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.7);
+            font-size: 8rem;
+            font-weight: 950;
+            font-style: italic;
+            background: linear-gradient(135deg, #ff007f, #7928ca);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0;
+            z-index: 1;
+            pointer-events: none;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        body.split-active .bg-vs-giant {
+            opacity: 0.4;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .container {
+            background: var(--container-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            padding: 25px 20px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 410px;
+            text-align: center;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+            z-index: 10;
+        }
+
+            .container.widget-mode {
+                max-width: 350px;
+                padding: 15px;
+            }
+
+                .container.widget-mode .site-logo,
+                .container.widget-mode .actions-grid,
+                .container.widget-mode .live-users {
+                    display: none !important;
+                }
+
+        .site-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-icon {
+            font-size: 2.2rem;
+        }
+
+        .site-logo h2 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #00f2fe, #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-top: 5px;
+        }
+
+        /* תיקון באג רווח ומסכים נסתרים */
+        .screen {
+            display: none;
+            opacity: 0;
+        }
+
+            .screen.active {
+                display: block !important;
+                opacity: 1;
+            }
+
+        .menu-btn {
+            width: 100%;
+            padding: 14px 18px;
+            margin-bottom: 12px;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-gomer {
+            background: linear-gradient(135deg, #0052d4, #4364f7);
+            border-bottom: 3px solid #243b9b;
+        }
+
+        .btn-siyut {
+            background: linear-gradient(135deg, #61045f, #aa076b);
+            border-bottom: 3px solid #510234;
+        }
+
+        .btn-mivhan {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            border-bottom: 3px solid #0b665f;
+        }
+
+        .btn-football {
+            background: linear-gradient(135deg, #f12711, #f5af19);
+            border-bottom: 3px solid #a11406;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: right;
+        }
+
+            .form-group label {
+                display: block;
+                font-size: 0.85rem;
+                color: #9ca3af;
+                margin-bottom: 5px;
+                font-weight: 700;
+            }
+
+        select, input[type="datetime-local"], input[type="date"] {
+            width: 100%;
+            padding: 11px;
+            border-radius: 12px;
+            border: 2px solid #475569;
+            background: #1e293b;
+            color: white;
+            font-size: 0.95rem;
+            text-align: center;
+            outline: none;
+        }
+
+        .countdown-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 20px 0;
+        }
+
+        .time-block {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            width: 74px;
+            padding: 10px 0;
+            border-radius: 14px;
+            box-shadow: 0 0 15px var(--neon-pulse);
+            transition: box-shadow 0.2s ease;
+        }
+
+            .time-block.pulse {
+                box-shadow: 0 0 30px var(--neon-blue);
+            }
+
+        .time-num {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #00ff87;
+        }
+
+        .time-label {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
+        .box-logos {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .box-team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 42%;
+        }
+
+        .box-logo-img {
+            width: 85px;
+            height: 85px;
+            object-fit: contain;
+            margin-bottom: 5px;
+        }
+
+        .box-team-name {
+            font-size: 0.85rem;
+            font-weight: 800;
+        }
+
+        .box-vs {
+            font-weight: 900;
+            color: #ff007f;
+            font-size: 1.1rem;
+        }
+
+        .punchline {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 15px;
+        }
+
+        .actions-grid {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .sm-btn {
+            padding: 9px 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            color: white;
+        }
+
+        .btn-back {
+            background: #475569;
+        }
+
+        .btn-wa {
+            background: #22c55e;
+        }
+
+        .btn-clink {
+            background: #3b82f6;
+        }
+
+        .btn-widget {
+            background: #ef4444;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            border: 2px solid #475569;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 800;
+            z-index: 100;
+            transition: bottom 0.3s ease;
+        }
+
+            .toast.show {
+                bottom: 30px;
+            }
+
+        .live-users {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulseAnimate 1.5s infinite;
+        }
+
+        @keyframes pulseAnimate {
+            0%, 100% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <img id="giantLogoRight" class="bg-team-logo bg-logo-right" src="beitar.png" alt="">
+    <div id="giantVs" class="bg-vs-giant">VS</div>
+    <img id="giantLogoLeft" class="bg-team-logo bg-logo-left" src="maccabi_ta.png" alt="">
+
+    <div class="container" id="appContainer">
+        <div class="site-logo">
+            <div class="logo-icon">⏳</div>
+            <h2>ספירת החופש והסבל</h2>
+        </div>
+
+        <div id="screenMenu" class="screen">
+            <button class="menu-btn btn-gomer" onclick="playClick(); selectMode('gomer')"><span>ספירת הגומר לים 🌊</span><span>⏳</span></button>
+            <button class="menu-btn btn-siyut" onclick="playClick(); selectMode('siyut')"><span>ספירת הסיוט לביה"ס 💀</span><span>😈</span></button>
+            <button class="menu-btn btn-mivhan" onclick="playClick(); selectMode('mivhan')"><span>ספירת מבחן חד פעמי 📝</span><span>📝</span></button>
+            <button class="menu-btn btn-football" onclick="playClick(); showFootballSetup()"><span>ספירה למשחק כדורגל ⚽</span><span>⚽</span></button>
+        </div>
+
+        <div id="screenFootballSetup" class="screen">
+            <div class="form-group">
+                <label>קבוצה א' (מארחת):</label>
+                <select id="team1Select" onchange="updateSetupVisuals()">
+                    <option value="ביתר" selected>בית"ר ירושלים 🦁</option>
+                    <option value="חיפה">מכבי חיפה 🐊</option>
+                    <option value="מכבי תא">מכבי תל אביב 🏆</option>
+                    <option value="הפועל באר שבע">הפועל באר שבע 🐪</option>
+                    <option value="הפועל תא">הפועל תל אביב 🦅</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>קבוצה ב' (אורחת):</label>
+                <select id="team2Select" onchange="updateSetupVisuals()">
+                    <option value="ביתר">בית"ר ירושלים 🦁</option>
+                    <option value="חיפה">מכבי חיפה 🐊</option>
+                    <option value="מכבי תא" selected>מכבי תל אביב 🏆</option>
+                    <option value="הפועל באר שבע">הפועל באר שבע 🐪</option>
+                    <option value="הפועל תא">הפועל תל אביב 🦅</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>תאריך ושעת המשחק:</label>
+                <input type="datetime-local" id="gameDateTime">
+            </div>
+            <button class="menu-btn btn-football" style="justify-content: center;" onclick="playClick(); generateFootballTimer()">צור ספירה למשחק! 🔥</button>
+            <button class="sm-btn btn-back" onclick="playClick(); navToMenu()">חזור</button>
+        </div>
+
+        <div id="screenTimer" class="screen">
+            <h1 id="timerTitle" style="font-size: 1.2rem; margin-bottom: 10px; font-weight: 800;">ספירה</h1>
+            <div id="punchlineText" class="punchline">מלחמה על המגרש!</div>
+
+            <div class="box-logos" id="footballBoxDisplay">
+                <div class="box-team">
+                    <img class="box-logo-img" id="boxImg1" src="beitar.png" alt="">
+                    <span class="box-team-name" id="boxName1">קבוצה א</span>
+                </div>
+                <div class="box-vs">VS</div>
+                <div class="box-team">
+                    <img class="box-logo-img" id="boxImg2" src="maccabi_ta.png" alt="">
+                    <span class="box-team-name" id="boxName2">קבוצה ב</span>
+                </div>
+            </div>
+
+            <div class="countdown-row">
+                <div class="time-block" id="b_d"><div id="d_num" class="time-num">00</div><div class="time-label">ימים</div></div>
+                <div class="time-block" id="b_h"><div id="h_num" class="time-num">00</div><div class="time-label">שעות</div></div>
+                <div class="time-block" id="b_m"><div id="m_num" class="time-num">00</div><div class="time-label">דקות</div></div>
+                <div class="time-block" id="b_s"><div id="s_num" class="time-num">00</div><div class="time-label">שניות</div></div>
+            </div>
+
+            <div class="form-group" id="manualDateGroup" style="max-width: 200px; margin: 0 auto 15px auto;">
+                <input type="date" id="manualTargetDate" onchange="manualDateUpdate()">
+            </div>
+
+            <div class="actions-grid">
+                <button class="sm-btn btn-back" onclick="playClick(); navToMenu()">חזור</button>
+                <button class="sm-btn btn-wa" onclick="playClick(); shareToWhatsapp()">שתף</button>
+                <button class="sm-btn btn-clink" onclick="playClick(); copySiteLink()">העתק</button>
+                <button class="sm-btn btn-widget" id="widgetToggleBtn" onclick="playClick(); toggleWidgetMode()">מצב קטן</button>
+            </div>
+        </div>
+
+        <div class="live-users">
+            <div class="dot"></div>
+            <span>עוד <strong id="liveCount">142</strong> תלמידים סופרים איתך</span>
+        </div>
+    </div>
+
+    <div id="copyToast" class="toast">הקישור הועתק בהצלחה! 🚀</div>
+
+    <script>
+        let currentMode = '';
+        let countdownInterval;
+        let targetTimestamp = 0;
+        let audioCtx = null;
+
+        const teamData = {
+            "ביתר": { name: 'בית"ר ירושלים', color: '#111111', secondColor: '#ffd700', img: 'beitar.png' },
+            "חיפה": { name: 'מכבי חיפה', color: '#004d1a', secondColor: '#009a44', img: 'maccabi_haifa.png' },
+            "מכבי תא": { name: 'מכבי תל אביב', color: '#001f4d', secondColor: '#ffd700', img: 'maccabi_ta.png' },
+            "הפועל באר שבע": { name: 'הפועל ב"ש', color: '#4a0000', secondColor: '#d32f2f', img: 'hapoel_bs.png' },
+            "הפועל תא": { name: 'הפועל תל אביב', color: '#590000', secondColor: '#b71c1c', img: 'hapoel_ta.png' }
+        };
+
+        function playClick() {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.08);
+            } catch (e) { }
+        }
+
+        function playBeep() {
+            try {
+                if (!audioCtx) return;
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.03);
+            } catch (e) { }
+        }
+
+        window.onload = function () {
+            setupPWA();
+            showScreen('screenMenu');
+            if (localStorage.getItem('date_gomer')) {
+                document.getElementById('manualTargetDate').value = localStorage.getItem('date_gomer');
+            }
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const target = document.getElementById(screenId);
+            if (target) target.classList.add('active');
+
+            if (screenId !== 'screenTimer' && screenId !== 'screenFootballSetup') {
+                document.body.classList.remove('split-active');
+            }
+        }
+
+        function navToMenu() {
+            clearInterval(countdownInterval);
+            showScreen('screenMenu');
+        }
+
+        function toggleWidgetMode() {
+            const container = document.getElementById('appContainer');
+            const btn = document.getElementById('widgetToggleBtn');
+            if (container.classList.contains('widget-mode')) {
+                container.classList.remove('widget-mode');
+                btn.innerText = "מצב קטן";
+            } else {
+                container.classList.add('widget-mode');
+                btn.innerText = "מצב רגיל";
+            }
+        }
+
+        function selectMode(mode) {
+            currentMode = mode;
+            showScreen('screenTimer');
+            document.getElementById('footballBoxDisplay').style.display = 'none';
+            document.getElementById('manualDateGroup').style.display = 'block';
+
+            let defaultDate = mode === 'gomer' ? "2026-06-20" : "2026-09-01";
+            document.getElementById('timerTitle').innerText = mode === 'gomer' ? "ספירת הגומר 🎉" : "ספירת הסיוט 💀";
+
+            let savedDate = localStorage.getItem('date_' + mode) || defaultDate;
+            document.getElementById('manualTargetDate').value = savedDate;
+            document.getElementById('punchlineText').innerText = "הספירה החלה!";
+
+            initCounter(new Date(savedDate + "T00:00:00").getTime());
+        }
+
+        function manualDateUpdate() {
+            let val = document.getElementById('manualTargetDate').value;
+            if (val) {
+                localStorage.setItem('date_' + currentMode, val);
+                initCounter(new Date(val + "T00:00:00").getTime());
+            }
+        }
+
+        function showFootballSetup() {
+            showScreen('screenFootballSetup');
+            let savedT1 = localStorage.getItem('fb_t1') || 'ביתר';
+            let savedT2 = localStorage.getItem('fb_t2') || 'מכבי תא';
+            let savedTime = localStorage.getItem('fb_time') || "2026-05-30T20:00";
+
+            document.getElementById('team1Select').value = savedT1;
+            document.getElementById('team2Select').value = savedT2;
+            document.getElementById('gameDateTime').value = savedTime;
+
+            updateSetupVisuals();
+        }
+
+        function updateSetupVisuals() {
+            let t1 = document.getElementById('team1Select').value;
+            let t2 = document.getElementById('team2Select').value;
+            let data1 = teamData[t1];
+            let data2 = teamData[t2];
+
+            document.body.style.setProperty('--team1-color', data1.color);
+            document.body.style.setProperty('--team2-color', data2.secondColor);
+            document.body.classList.add('split-active');
+
+            document.getElementById('giantLogoRight').src = data1.img;
+            document.getElementById('giantLogoLeft').src = data2.img;
+        }
+
+        function generateFootballTimer() {
+            let t1 = document.getElementById('team1Select').value;
+            let t2 = document.getElementById('team2Select').value;
+            let timeVal = document.getElementById('gameDateTime').value;
+            if (!timeVal) return;
+
+            localStorage.setItem('fb_t1', t1);
+            localStorage.setItem('fb_t2', t2);
+            localStorage.setItem('fb_time', timeVal);
+
+            runFootballTimer(t1, t2, timeVal);
+        }
+
+        function runFootballTimer(t1, t2, timeVal) {
+            currentMode = 'football';
+            showScreen('screenTimer');
+            document.getElementById('manualDateGroup').style.display = 'none';
+
+            let data1 = teamData[t1];
+            let data2 = teamData[t2];
+
+            document.getElementById('timerTitle').innerText = `${data1.name} נגד ${data2.name}`;
+            document.getElementById('boxName1').innerText = data1.name;
+            document.getElementById('boxImg1').src = data1.img;
+            document.getElementById('boxName2').innerText = data2.name;
+            document.getElementById('boxImg2').src = data2.img;
+            document.getElementById('footballBoxDisplay').style.display = 'flex';
+
+            document.body.style.setProperty('--team1-color', data1.color);
+            document.body.style.setProperty('--team2-color', data2.secondColor);
+            document.body.classList.add('split-active');
+
+            document.getElementById('giantLogoRight').src = data1.img;
+            document.getElementById('giantLogoLeft').src = data2.img;
+
+            initCounter(new Date(timeVal).getTime());
+        }
+
+        function initCounter(timestamp) {
+            clearInterval(countdownInterval);
+            targetTimestamp = isNaN(timestamp) ? new Date().getTime() : timestamp;
+
+            function checkTime() {
+                let now = new Date().getTime();
+                let diff = targetTimestamp - now;
+
+                const secBlock = document.getElementById('b_s');
+                if (secBlock) {
+                    secBlock.classList.add('pulse');
+                    setTimeout(() => secBlock.classList.remove('pulse'), 200);
+                }
+                playBeep();
+
+                if (diff <= 0 || isNaN(diff)) {
+                    updateDisplay(0, 0, 0, 0);
+                    document.getElementById('punchlineText').innerText = currentMode === 'football' ? "המשחק התחיל! 🔥⚽" : "החופש הגיע!! 🎉";
+                    clearInterval(countdownInterval);
+                    return;
+                }
+
+                let d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                let h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                let m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                let s = Math.floor((diff % (1000 * 60)) / 1000);
+
+                updateDisplay(isNaN(d) ? 0 : d, isNaN(h) ? 0 : h, isNaN(m) ? 0 : m, isNaN(s) ? 0 : s);
+            }
+            checkTime();
+            countdownInterval = setInterval(checkTime, 1000);
+        }
+
+        function updateDisplay(d, h, m, s) {
+            document.getElementById('d_num').innerText = String(d).padStart(2, '0');
+            document.getElementById('h_num').innerText = String(h).padStart(2, '0');
+            document.getElementById('m_num').innerText = String(m).padStart(2, '0');
+            document.getElementById('s_num').innerText = String(s).padStart(2, '0');
+        }
+
+        function shareToWhatsapp() {
+            let d = document.getElementById('d_num').innerText;
+            let msg = encodeURIComponent(`הטיימר מעודכן! עוד ${d} ימים זה קורה! ⏳ כנסו לראות: ${window.location.href}`);
+            window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+        }
+
+        function copySiteLink() {
+            navigator.clipboard.writeText(window.location.href);
+            let toast = document.getElementById('copyToast');
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 2000);
+        }
+
+        function setupPWA() {
+            const manifestObj = {
+                "short_name": "ספירת הסבל",
+                "name": "ספירת החופש והסבל",
+                "start_url": ".",
+                "background_color": "#0f172a",
+                "theme_color": "#0f172a",
+                "display": "standalone",
+                "orientation": "portrait",
+                "icons": [{ "src": "beitar.png", "sizes": "512x512", "type": "image/png" }]
+            };
+            const manifestStr = JSON.stringify(manifestObj);
+            const blob = new Blob([manifestStr], { type: 'application/json' });
+            document.getElementById('pwaManifest').setAttribute('href', URL.createObjectURL(blob));
+
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                        self.addEventListener('install', e => self.skipWaiting());
+                        self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
+                    `;
+                const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                navigator.serviceWorker.register(URL.createObjectURL(swBlob)).then(() => {
+                    // בקשת הרשאה להודעות מיד עם רישום ה-Service Worker בהצלחה
+                    if (Notification.permission === 'default') {
+                        Notification.requestPermission();
+                    }
+                }).catch(() => { });
+            }
+        }
+
+        document.getElementById('liveCount').innerText = Math.floor(Math.random() * 50) + 110;
+    </script>
+</body>
+</html>
